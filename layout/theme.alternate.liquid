@@ -1,14 +1,22 @@
 <!doctype html>
 <html>
-  <head>
-  
-    {{ content_for_header }}
-   
-  </head>
+<head>
 
-  <body>
-   
-      {{ content_for_layout }}
-    
-  </body>
+    {{ content_for_header }}
+
+    <script src="{{ 'theme-sections.min.js' | asset_url }}" defer></script>
+    <script src="{{ 'alternate-main-product.js' | asset_url }}" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          Shopify.theme.sections.load('alternate-main-product')
+        })
+    </script>
+
+</head>
+
+<body>
+    <main>
+        {{ content_for_layout }}
+    </main>
+</body>
 </html>
