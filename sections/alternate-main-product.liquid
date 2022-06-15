@@ -1,0 +1,57 @@
+<!-- Для секции прописываем соответствующие data-аттрибуты -->
+<div data-section-id="{{ section.id }}" data-section-type="alternate-main-product">
+
+    <h1>{{ product.title }}</h1>
+    <p>{{ product.description }}</p>
+
+    {%- if section.blocks.size > 0 -%}
+        <ul>
+            {%- for block in section.blocks -%}
+                <li id="{{ block.id }}" {{ block.shopify_attributes }}> <!-- Для блоков добавляем  block.shopify_attributes -->
+                    {{ block.settings.test }}
+                </li>
+            {%- endfor -%}
+        </ul>
+    {%- endif -%}
+</div>
+
+
+{% schema %}
+{
+  "name": "Product Alternate Section",
+  "settings": [
+    {
+      "id": "description",
+      "type": "richtext",
+      "label": "Description"
+    },
+    {
+      "id": "background",
+      "type": "color",
+      "label": "Background",
+      "default": "#ffffff"
+    }
+  ],
+  "blocks": [
+    {
+      "name": "Block",
+      "type": "block",
+      "settings": [
+        {
+          "id": "test",
+          "type": "text",
+          "label": "Test",
+          "default": "Block"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Alternate Section",
+      "settings": {
+      }
+    }
+  ]
+}
+{% endschema %}
