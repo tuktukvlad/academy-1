@@ -1,22 +1,26 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
 
     {{ content_for_header }}
+    <title></title>
+    <link rel="stylesheet" href="{{ 'theme.min.css' | asset_url }}">
+    <script src="{{ 'theme.min.js' | asset_url }}" defer></script>
 
-    <script src="{{ 'theme-sections.min.js' | asset_url }}" defer></script>
-    <script src="{{ 'alternate-main-product.js' | asset_url }}" defer></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-          Shopify.theme.sections.load('alternate-main-product')
-        })
-    </script>
-
+    {% comment %}
+        <script src="{{ 'theme-sections.min.js' | asset_url }}" defer></script>
+        <script src="{{ 'alternate-main-product.js' | asset_url }}" defer></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+              Shopify.theme.sections.load('alternate-main-product')
+            })
+        </script>
+    {% endcomment %}
 </head>
 
 <body>
-    <main>
-        {{ content_for_layout }}
-    </main>
+<main>
+    {{ content_for_layout }}
+</main>
 </body>
 </html>
