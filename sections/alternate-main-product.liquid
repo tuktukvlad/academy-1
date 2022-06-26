@@ -1,19 +1,97 @@
-<!-- Для секции прописываем соответствующие data-аттрибуты -->
+
+{% comment %}
+    {{ 'option_selection.js' | shopify_asset_url | script_tag }}
+{% endcomment %}
+
 <div data-section-id="{{ section.id }}" data-section-type="alternate-main-product">
 
-    <h1>{{ product.title }}</h1>
-    <p>{{ product.description }}</p>
+    {%- if product -%}
 
-    {%- if section.blocks.size > 0 -%}
-        <ul>
-            {%- for block in section.blocks -%}
-                <li id="{{ block.id }}" {{ block.shopify_attributes }}> <!-- Для блоков добавляем  block.shopify_attributes -->
-                    {{ block.settings.test }}
-                </li>
+        <h1>{{ product.title }}</h1>
+        <p>{{ product.description }}</p>
+
+        {%- form 'product', product, id: 'product-form', data-handle: product.handle -%}
+
+            {%- for product_option in product.options_with_values -%}
+                <fieldset>
+                    <legend>{{ product_option.name }}</legend>
+                    {%- for option_value in product_option.values -%}
+                        <label>
+                            <input type="radio" name="options[{{ product_option.name | escape }}]"
+                                   value="{{ option_value | escape }}"
+                                   {% if product_option.selected_value == option_value -%}checked{%- endif -%}>
+                            {{ option_value | escape }}
+                        </label>
+                    {%- endfor -%}
+                </fieldset>
             {%- endfor -%}
-        </ul>
+
+
+            <noscript>
+                <label for="product-select">Select variant:</label>
+                <select id="product-select" name="id">
+                    {%- for variant in product.variants -%}
+                        <option value="{{- variant.id -}}"
+                                {%- if product.selected_or_first_available_variant.id == variant.id -%}selected{%- endif -%}
+                        >
+                            {{- variant.title -}}
+                        </option>
+                    {%- endfor -%}
+                </select>
+            </noscript>
+
+            <input id="add-to-cart" type="submit" value="Add to cart" data-sold-out="Out of stock"
+                   data-add-to-cart="Add to cart" data-unavailable="Unavailable">
+            <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+        {%- endform -%}
     {%- endif -%}
 </div>
+
+{% comment %}
+        <script>
+          const form = document.getElementById('product-form')
+          if (form) {
+            form.addEventListener('submit', (event) => {
+              event.preventDefault()
+              fetch(Shopify.routes.root + 'cart/add.js', {
+                method: 'POST',
+                body: new FormData(event.target),
+              }).then(response => response.json()).then(response => {
+                  const cartEvent = new CustomEvent('cart:added', {
+                    detail: {
+                      section: response.sections['alternate-main-product']
+                    }
+                  });
+                  document.dispatchEvent(cartEvent, {
+                    bubbles: true
+                  })
+                }
+              ).catch(console.error)
+            })
+          }
+
+          const atcBtn = document.getElementById('add-to-cart')
+
+          new Shopify.OptionSelectors('product-select', {
+            product: {{ product | json }},
+            onVariantSelected: (variant) => {
+              if (atcBtn) {
+                  if (!variant) {
+                    atcBtn.setAttribute('disabled', 'disabled')
+                    atcBtn.setAttribute('value', atcBtn.dataset.unavailable)
+                  } else if (variant && variant.available) {
+                    atcBtn.removeAttribute('disabled')
+                    atcBtn.setAttribute('value', atcBtn.dataset.addToCart)
+                  } else if (variant && !variant.available) {
+                    atcBtn.setAttribute('disabled', 'disabled')
+                    atcBtn.setAttribute('value', atcBtn.dataset.soldOut)
+                  }
+              }
+            },
+            enableHistoryState: true
+          });
+        </script>
+{% endcomment %}
 
 
 {% schema %}
